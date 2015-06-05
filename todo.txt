@@ -1,0 +1,20 @@
+To Do:
+ * 1, check
+ * 2
+    - Edit Sudoku Class
+      -> Makkelijker operatoren toepassen
+
+      setVakje(punt, waarde)
+      (bitstring) getVakje(vakje)
+      Switch(vakje1, vakje2)
+      int HeurVal()
+
+
+      -> Searchable subclass
+        - Time Limit dingen
+        - Vul functie, elk blok alle N
+      -> CSP Subclass
+
+    - Timers zijn er al
+ * 3, Meerdere CSP Algoritmen doen
+      -> Zorgt voor subclasses bij SCP class/functie
