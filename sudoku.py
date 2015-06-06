@@ -62,7 +62,7 @@ class Sudoku(object):
 	def setValue(self, d, x=None, y=None, sq=None):
 		if sq == None:
 			sq = self.xy2sq(x, y)
-		self._setValue(self, d, sq)
+		self._setValue(d, sq)
 		
 	def _setValue(self, d, sq):
 		self.values[sq] = d
@@ -77,87 +77,27 @@ class Sudoku(object):
 		return str(val)
 		
 	def sq2xy(self, sq):
+		"""Converts a square coordinate to x, y coordinates, column and row
+		coordinates"""
 		x = sq & (sq - 1) # The first 1-bit in the bitstring sq
 		y = sq - x # The other 1-bit in the bitstring sq
-		return x, y
+		x = x >> (self.N**2) # Shift x so that the coordinate of the 1 bit is the x coordinate 
+		xdec = 0
+		ydec = 0
+		while x != 1 or y != 1:
+			if x:
+				x = x >> 1
+				xdec += 1
+			if y:
+				y = y >> 1
+				ydec += 1
+		return xdec, ydec
 		
 	def xy2sq(self, x, y):
+		"""Converts x, y coordinates to the square coordinate (the key of
+		the values dict"""
 		return (1<<(self.N**2+x))+(1<<y)
-		
-class CSPSudoku(Sudoku):
-	def __init__(self, N, *args, **kwargs):
-		super(CSPSudoku, self).__init__(N, *args, **kwargs)
-		
-		self.digits = (1 << (N**2)) - 1 # Think of it as bitstrings, this is a string of length N**2 with only 1s
-		self.values = dict((s, self.digits) for s in self.squares)
-		
-	def _assign(self, d, sq):
-		other_values = self.values[sq] & (self.digits - d)
-		if all(self.eliminate((1<<d2), sq=sq) for d2 in range(self.N**2) if (1<<d2) <= other_values and (1<<d2) & other_values):
-			return self
-		else:
-			return False
-
-	def eliminate(self, d, x=None, y=None, sq=None):
-		"""Eliminate d from values[s]; propagate when values or places <= 2.
-		Return values, except return False if a contradiction is detected."""
-		if sq == None:
-			sq = self.xy2sq(x, y)
-		if self.values[sq] < d or not self.values[sq] & d:
-			return self ## Already eliminated
-		self.values[sq] = self.values[sq] & (self.digits - d)
-		## (1) If a square s is reduced to one value d2, then eliminate d2 from the peers.
-		if self.values[sq] == 0:
-			return False ## Contradiction: removed last value
-		elif (self.values[sq] & (self.values[sq] - 1)) == 0: # If there is only one option left (notice that self.values[s]-1 is equal to changing the least significant 1 bit to 0 (and changing all less significant bits to 1), so this won't be 0 if there is more than one 1 bit, and as we've checked for self.values[s] == 0 before, it can't be that, either.)
-			d2 = self.values[sq]
-			if not all(self.eliminate(d2, sq=sq2) for sq2 in self.peers[sq]):
-				return False
-		## (2) If a unit u is reduced to only one place for a value d, then put it there.
-		for u in self.units[sq]:
-			dplaces = [sq2 for sq2 in u if self.values[sq] >= d and self.values[sq] & d] # Every place where d is still allowed
-			if len(dplaces) == 0:
-				return False ## Contradiction: no place for this value
-			elif len(dplaces) == 1:
-				# d can only be in one place in unit; assign it there
-				if not self.assign(d, sq=dplaces[0]):
-					return False
-		return self
-		
-	def __strval__(self, val):
-		return " " + " ".join(str(d + 1) for d in range(self.N**2) if 1 << d & val) + " "
-		
-
-#class Sudoku:
-	#data = []
-	#size = None
-	
-	#def __init__(self, data, n, *args, **kwargs):
-		#self.data = data
-		#self.size = n
-	
-	#def getBlock(self, i):
-		#return [self.data[self.size*i+self.size**2*j+self.size*k] for j in range(self.size) for k in range(self.size)]
-		
-	#def getRow(self, i):
-		#return [self.data[i*self.size**2 + j] for j in range(self.size**2)]
-		
-	#def getColumn(self, i):
-		#return [self.data[i + j*self.size**2] for j in range(self.size**2)]
-		
-	#def __str__(self, *args, **kwargs):
-		#string = ""
-		#for i in range(self.size**2):
-			#row = ["{:<4}".format(d) for d in self.getRow(i)]
-			#for j in range(self.size, self.size**2, self.size):
-				#row = row[:j + j / self.size - 1] + [" | "] + row[j + j / self.size - 1:]
-			#string += "".join([str(j) for j in row])
-			#string += "\n"
-			#if (i + 1) % self.size == 0 and i != self.size**2 - 1:
-				#string += "-"*(4 * self.size**2 + (self.size - 1) * 2)
-				#string += "\n"
-		#return string
 
 if __name__ == "__main__":
-	sud = CSPSudoku(2)
+	sud = Sudoku(2)
 	print(sud)
