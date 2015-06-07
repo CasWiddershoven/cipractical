@@ -17,3 +17,13 @@ class LSSudoku(Sudoku):
 		    s = self.units[u][2][prefill[u]-1]
 		    self.setValue(prefill[u],0,0,u)
 		    self.setValue(v,0,0,s)
+
+	def switch(self, x1=None, x2=None, y1=None, y2=None, sq1=None, sq2=None):
+		if sq1 == None:
+			sq1 = self.xy2sq(x1, y1)
+		if sq2 == None:
+			sq2 = self.xy2sq(x2, y2)
+		val1 = self.getValue(sq=sq1)
+		val2 = self.getValue(sq=sq2)
+		self.setValue(val2, sq=sq1)
+		self.setValue(val1, sq=sq2)
