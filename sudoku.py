@@ -31,8 +31,6 @@ class Sudoku(object):
 
 		self.values = dict((s, 0) for s in self.squares)
 
-        self.fill()
-
 		test(self)
 
 	def copy(self):
@@ -98,19 +96,6 @@ class Sudoku(object):
 		"""Converts x, y coordinates to the square coordinate (the key of
 		the values dict"""
 		return (1<<(self.N**2+x))+(1<<y)
-
-    # Michiel's stuff:
-	def fill(self):
-		prefill = {513:4,514:2}
-		for u in range(18,27):
-		    for val in range(self.N**2):
-		            self.setValue(val+1,0,0,self.unitlist[u][val])
-
-		for u in prefill:
-		    v = self.getValue(0,0,u)
-		    s = self.units[u][2][prefill[u]-1]
-		    self.setValue(prefill[u],0,0,u)
-		    self.setValue(v,0,0,s)
 
 
 if __name__ == "__main__":
