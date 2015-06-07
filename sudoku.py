@@ -6,7 +6,7 @@ def test(su, verbose=False):
     assert len(su.unitlist) == 3*su.N**2 # 3*N**2
     assert all(len(su.units[s]) == 3 for s in su.squares)
     assert all(len(su.peers[s]) == 3*su.N**2-2*su.N-1 for s in su.squares) # 3*N**2-2*N-1
-    if verbose: print 'All tests pass.'
+    if verbose: print('All tests pass.')
     
 class Sudoku(object):
 	def __init__(self, N, *args, **kwargs):
@@ -53,7 +53,7 @@ class Sudoku(object):
 		width = 2 + max(len(self.__strval__(self.getValue(sq=sq))) for sq in self.squares)
 		line = '+'.join(['-'*(width*self.N)]*self.N)
 		for r in range(self.N**2):
-			res += "".join(" " + self.__strval__(self.getValue(x=c, y=r)) + " " + ("|" if (c+1) % self.N == 0 and c < self.N**2 - 1 else '')
+			res += "".join("{:^{w}}".format(self.__strval__(self.getValue(x=c, y=r)), w=width) + ("|" if (c+1) % self.N == 0 and c < self.N**2 - 1 else '')
 							for c in range(self.N**2)) + "\n"
 			if (r+1) % self.N == 0 and r < self.N**2 - 1: res += line + "\n"
 		res += "\n"
@@ -62,7 +62,7 @@ class Sudoku(object):
 	def setValue(self, d, x=None, y=None, sq=None):
 		if sq == None:
 			sq = self.xy2sq(x, y)
-		self._setValue(d, sq)
+		return self._setValue(d, sq)
 		
 	def _setValue(self, d, sq):
 		self.values[sq] = d
@@ -84,7 +84,7 @@ class Sudoku(object):
 		x = x >> (self.N**2) # Shift x so that the coordinate of the 1 bit is the x coordinate 
 		xdec = 0
 		ydec = 0
-		while x != 1 or y != 1:
+		while x > 1 or y > 1:
 			if x:
 				x = x >> 1
 				xdec += 1
