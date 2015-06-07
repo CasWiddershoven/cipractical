@@ -6,13 +6,7 @@ def test(su, verbose=False):
     assert len(su.unitlist) == 3*su.N**2 # 3*N**2
     assert all(len(su.units[s]) == 3 for s in su.squares)
     assert all(len(su.peers[s]) == 3*su.N**2-2*su.N-1 for s in su.squares) # 3*N**2-2*N-1
-<<<<<<< HEAD
-    if verbose: print('All tests pass.')
     
-=======
-    if verbose: print 'All tests pass.'
-
->>>>>>> b14d82f230d13fd2413a6c61fa5847c40d49fd6e
 class Sudoku(object):
 	def __init__(self, N, *args, **kwargs):
 
