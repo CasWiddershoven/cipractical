@@ -10,7 +10,7 @@ class LSSudoku(Sudoku):
 		temp = self.calcHeuristicTmp()
 
 		self.visitedStatesTotal = 0
-		self.visitesStates = {}
+		self.visitedStates = {}
 
 		self.optimum = None
 
@@ -34,9 +34,10 @@ class LSSudoku(Sudoku):
 					value = self.heur
 				self.optimum = self.successor
 
-			self.visitesStates[restarts] = self.visitedStatesTotal
+			self.visitedStates[restarts] = self.visitedStatesTotal
 
 		self.values = self.optimum
+
 		print self.visitedStates
 		for q in self.visitedStates:
 			print self.visitedStates[q+1]
