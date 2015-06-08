@@ -54,7 +54,8 @@ class LSSudoku(Sudoku):
 		    self.setValue(self.prefill[u],0,0,u)
 		    self.setValue(v,0,0,s)
 
-	def calcHeuristic(self):
+<<<<<<< HEAD
+	def calcHeuristicTmp(self):
 		""" Calculate the heurstic value for the initial sudoku """
 		_sum =0;
 
@@ -153,3 +154,14 @@ class LSSudoku(Sudoku):
 if __name__ == "__main__":
 	sud = LSSudoku(3)
 	print(sud)
+=======
+	def switch(self, x1=None, x2=None, y1=None, y2=None, sq1=None, sq2=None):
+		if sq1 == None:
+			sq1 = self.xy2sq(x1, y1)
+		if sq2 == None:
+			sq2 = self.xy2sq(x2, y2)
+		val1 = self.getValue(sq=sq1)
+		val2 = self.getValue(sq=sq2)
+		self.setValue(val2, sq=sq1)
+		self.setValue(val1, sq=sq2)
+>>>>>>> origin/master
