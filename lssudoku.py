@@ -40,7 +40,7 @@ class LSSudoku(Sudoku):
 
 		print self.visitedStates
 		for q in self.visitedStates:
-			print self.visitedStates[q+1]
+			print self.visitedStates[q]
 
 		print ""
 
