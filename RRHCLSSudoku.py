@@ -1,12 +1,15 @@
-from sudoku import Sudoku
+from lssudoku import LSSudoku
 from random import randrange
 import copy, time, random
 
-class LSSudoku(Sudoku):
+class RRHCLSSudoku(LSSudoku):
 	def __init__(self, N, *args, **kwargs):
 		super(LSSudoku, self).__init__(N, *args, **kwargs)
 		self.fill()
 
+		self.generateSucc()
+
+	def generateSucc(self):
 		temp = self.calcHeuristicTmp()
 
 		self.visitedStatesTotal = 0
@@ -28,7 +31,7 @@ class LSSudoku(Sudoku):
 			while sameValues < 3:
 				print k
 				k +=1
-				self.successor = self.generateSucc()
+				self.successor = self.generateSuccHillClimb()
 				if self.heur == value:
 					sameValues +=1
 				else:
@@ -41,6 +44,7 @@ class LSSudoku(Sudoku):
 
 		self.values = self.optimum
 
+		# output the amount of states visited
 		print self.visitedStates
 		p=0
 		for q in self.visitedStates:
@@ -48,57 +52,10 @@ class LSSudoku(Sudoku):
 		print p
 		print ""
 
-	def fill(self, file = None):
-		""" Fills the sudoku with a pre-chosen list (can be read from file) and fills
-		 in the rest with "random" numbers (1-9) """
-		if file == None:
-			self.prefill = {513:4,514:2, 520: 1}
-		else:
-			f = open('sudoku.txt')
-			self.prefill = f.read()
-			f.close()
-		for u in range(18,27):
-		    for val in range(self.N**2):
-		            self.setValue(val+1,0,0,self.unitlist[u][val])
-
-		for u in self.prefill:
-		    v = self.getValue(0,0,u)
-		    s = self.units[u][2][self.prefill[u]-1]
-		    self.setValue(self.prefill[u],0,0,u)
-		    self.setValue(v,0,0,s)
-
-	def calcHeuristicTmp(self):
-		""" Calculate the heurstic value for the initial sudoku """
-		_sum =0;
-
-		for u in self.unitlist:
-		    for p in self.units[u[0]]:
-		        nums = [0] * self.N**2
-		        for i in p:
-		            nums[self.values[i]-1] += 1
-		        for j in nums:
-		            if(j==0):
-		                _sum += 1
-		return _sum
-
-	def calcHeuristicFunc(self, dictio):
-		""" Calculates the heursitc value of an inputted sudoku """
-		_sum = 0
-
-		for u in self.unitlist:
-		    for p in self.units[u[0]]:
-		        nums = [0] *self.N**2
-		        for i in p:
-		            nums[dictio[i]-1] += 1
-		        for j in nums:
-		            if(j==0):
-		                _sum += 1
-		return _sum
-
-	def generateSucc(self):
+	def generateSuccHillClimb(self):
 		""" Generates and checks all possible successor states and returns the best.
 		The order in which it will check is completely random
-		 """
+		"""
 		bestSuccessor = copy.deepcopy(self.successor)
 
 		# Bekijk de heurstic values en sla de beste op
@@ -163,9 +120,8 @@ class LSSudoku(Sudoku):
 
 		return bestSuccessor
 
-
 if __name__ == "__main__":
-	sud = LSSudoku(3)
+	sud = RRHCLSSudoku(3)
 	print(sud)
 
 	def switch(self, x1=None, x2=None, y1=None, y2=None, sq1=None, sq2=None):
