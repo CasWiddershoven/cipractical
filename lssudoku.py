@@ -7,13 +7,16 @@ class LSSudoku(Sudoku):
 		super(LSSudoku, self).__init__(N, *args, **kwargs)
 		self.fill()
 
-		temp = self.calcHeuristic()
+		temp = self.calcHeuristicTmp()
 
+		self.visitedStatesTotal = 0
+		self.visitesStates = {}
 
 		self.optimum = None
 
 		# random restart hillclimbing
-		for restarts in range(6):
+		for restarts in range(3):
+			self.visitedStatesTotal = 0
 			self.heur = temp
 
 			self.successor = copy.deepcopy(self.values)
@@ -31,7 +34,12 @@ class LSSudoku(Sudoku):
 					value = self.heur
 				self.optimum = self.successor
 
+			self.visitesStates[restarts] = self.visitedStatesTotal
+
 		self.values = self.optimum
+		print self.visitedStates
+		for q in self.visitedStates:
+			print self.visitedStates[q+1]
 
 		print ""
 
@@ -54,7 +62,6 @@ class LSSudoku(Sudoku):
 		    self.setValue(self.prefill[u],0,0,u)
 		    self.setValue(v,0,0,s)
 
-<<<<<<< HEAD
 	def calcHeuristicTmp(self):
 		""" Calculate the heurstic value for the initial sudoku """
 		_sum =0;
@@ -71,7 +78,7 @@ class LSSudoku(Sudoku):
 
 	def calcHeuristicFunc(self, dictio):
 		""" Calculates the heursitc value of an inputted sudoku """
-		_sum =0;
+		_sum = 0
 
 		for u in self.unitlist:
 		    for p in self.units[u[0]]:
@@ -142,6 +149,7 @@ class LSSudoku(Sudoku):
 						bestHeur = currentHeur
 
 				# random index keuze
+				self.visitedStatesTotal += 1
 				del restSq[j]
 
 
@@ -154,7 +162,7 @@ class LSSudoku(Sudoku):
 if __name__ == "__main__":
 	sud = LSSudoku(3)
 	print(sud)
-=======
+
 	def switch(self, x1=None, x2=None, y1=None, y2=None, sq1=None, sq2=None):
 		if sq1 == None:
 			sq1 = self.xy2sq(x1, y1)
@@ -164,4 +172,3 @@ if __name__ == "__main__":
 		val2 = self.getValue(sq=sq2)
 		self.setValue(val2, sq=sq1)
 		self.setValue(val1, sq=sq2)
->>>>>>> origin/master
