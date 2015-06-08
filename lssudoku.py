@@ -1,34 +1,57 @@
 from sudoku import Sudoku
-import copy, time
+from random import randrange
+import copy, time, random
 
 class LSSudoku(Sudoku):
 	def __init__(self, N, *args, **kwargs):
 		super(LSSudoku, self).__init__(N, *args, **kwargs)
 		self.fill()
 
-		self.heur = self.calcHeuristic()
+		temp = self.calcHeuristic()
 
-		for k in range(32):
-			print k
-			if k > 30:
-				print self.values
-			self.successor = self.generateSucc()
-			self.values = self.successor
+
+		self.optimum = None
+
+		# random restart hillclimbing
+		for restarts in range(6):
+			self.heur = temp
+
+			self.successor = copy.deepcopy(self.values)
+			sameValues = 0
+			value = 1000
+			k = 0
+			while sameValues < 3:
+				print k
+				k +=1
+				self.successor = self.generateSuccHillclimbing()
+				if self.heur == value:
+					sameValues +=1
+				else:
+					sameValues = 0
+					value = self.heur
+				self.optimum = self.successor
+
+		self.values = self.optimum
 
 		print ""
 
-	def fill(self):
-		""" Fills the sudoku with a pre-chosen list and fills
+	def fill(self, file = None):
+		""" Fills the sudoku with a pre-chosen list (can be read from file) and fills
 		 in the rest with "random" numbers (1-9) """
-		prefill = {513:4,514:2}
+		if file == None:
+			self.prefill = {513:4,514:2, 520: 1}
+		else:
+			f = open('sudoku.txt')
+			self.prefill = f.read()
+			f.close()
 		for u in range(18,27):
 		    for val in range(self.N**2):
 		            self.setValue(val+1,0,0,self.unitlist[u][val])
 
-		for u in prefill:
+		for u in self.prefill:
 		    v = self.getValue(0,0,u)
-		    s = self.units[u][2][prefill[u]-1]
-		    self.setValue(prefill[u],0,0,u)
+		    s = self.units[u][2][self.prefill[u]-1]
+		    self.setValue(self.prefill[u],0,0,u)
 		    self.setValue(v,0,0,s)
 
 	def calcHeuristic(self):
@@ -59,33 +82,52 @@ class LSSudoku(Sudoku):
 		                _sum += 1
 		return _sum
 
-	def generateSucc(self):
-		""" Generates all possible successor states and returns the best """
-		bestSuccessor = 0
+	def generateSuccHillclimbing(self):
+		""" Generates and checks all possible successor states and returns the best.
+		The order in which it will check is completely random
+		 """
+		bestSuccessor = copy.deepcopy(self.successor)
 
-		# Bekijk de heursitc values en sla de beste op
-		bestHeur = self.heur
+		# Bekijk de heurstic values en sla de beste op
+		bestHeur = copy.deepcopy(self.heur)
 
 		print bestHeur
-		if bestHeur==0:
-			return self.values
+		if bestHeur == 0:
+			return bestSuccessor
+		usableSq = copy.deepcopy(self.squares)
 
 		for i in range(len(self.squares)):
 			sq = self.squares[i]
 
 			# Deze moet gecopied worden
 			restSq = copy.deepcopy(self.squares)
+
+			# de originele posities moeten behouden blijven
+			if sq in self.prefill:
+				continue
+
 			del restSq[i]
-			val1 = self.values[sq]
 
-			for j in range(len(restSq)):
-				sq2=restSq[j]
+			val1 = self.successor[sq]
 
-				values = copy.deepcopy(self.values)
+			# nu met random keuzes
+			j = 1
+
+			while j: #for j in range(len(restSq)):
+				j = randrange(0,len(restSq))
+				sq2 = restSq[j]
+
+				# de originele posities moeten behouden blijven
+				if sq2 in self.prefill:
+					del restSq[j]
+					continue
+
+				values = copy.deepcopy(self.successor)
 				val2 = values[sq2]
 
 				if val2 == val1:
-					pass
+					del restSq[j]
+					continue
 				else:
 					values[sq] = val2
 					values[sq2] = val1
@@ -97,6 +139,10 @@ class LSSudoku(Sudoku):
 						# Probeer deze eens zonder deepcopy!
 						bestSuccessor = copy.deepcopy(values)
 						bestHeur = currentHeur
+
+				# random index keuze
+				del restSq[j]
+
 
 		if bestHeur < self.heur:
 			self.heur = bestHeur
