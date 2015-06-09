@@ -19,7 +19,7 @@ class RRHCLSSudoku(LSSudoku):
 		self.optimum = None
 
 		# random restart hillclimbing
-		for restarts in range(3):
+		for restarts in range(300):
 			self.visitedStatesTotal = 0
 			self.heur = temp
 
@@ -71,15 +71,27 @@ class RRHCLSSudoku(LSSudoku):
 			return bestSuccessor
 
 		# nieuwe methode
-		for sqPos in range(2*self.N**2,len(self.unitlist)):
 
-			# print sqPos
+		# en nu met random:
+		unvisitedSquares = [0] * (self.N**2)
+		sqPos = 1
+
+		for sqPos in range(self.N**2):
+			unvisitedSquares[sqPos] = copy.deepcopy(self.unitlist[2* self.N**2 + sqPos])
+
+		while sqPos:
+			sqPos = randrange(len(unvisitedSquares))
+
+		#for sqPos in range(2*self.N**2,len(self.unitlist)):
 
 			# elke square (0-8) gaat kijken of ie kan switchen ergens mee
-			for i in range(self.N**2):
-
-				sq1 = copy.deepcopy(self.unitlist[sqPos][i])
-			#	print sq1
+			# for i in range(self.N**2):
+			i = 9
+			# en nu random:
+			while i:
+				i-=1
+				#sq1 = copy.deepcopy(self.unitlist[sqPos][i])
+				sq1 = copy.deepcopy(unvisitedSquares[sqPos][i])
 
 				# de originele posities moeten behouden blijven
 				if sq1 in self.prefill:
@@ -87,15 +99,12 @@ class RRHCLSSudoku(LSSudoku):
 
 				val1 = self.getValue(0,0,sq1)
 
-				# en nu random:
-
 				j = i
 				while j < self.N**2 -1 :
 					values = self.successor.copy()
 					j += 1
 
-
-					sq2 = self.unitlist[sqPos][j]
+					sq2 = unvisitedSquares[sqPos][j]
 
 					# de originele posities moeten behouden blijven
 					if sq2 in self.prefill:
@@ -125,6 +134,9 @@ class RRHCLSSudoku(LSSudoku):
 							# Probeer deze eens zonder deepcopy!
 							bestSuccessor = copy.deepcopy(values)
 							bestHeur = copy.deepcopy(currentHeur)
+
+			del unvisitedSquares[sqPos]
+		# einde while loop
 
 		if bestHeur < self.heur:
 			self.heur = copy.deepcopy(bestHeur)
