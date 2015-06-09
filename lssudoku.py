@@ -7,47 +7,6 @@ class LSSudoku(Sudoku):
 		super(LSSudoku, self).__init__(N, *args, **kwargs)
 		self.fill()
 
-		temp = self.calcHeuristicTmp()
-
-		self.visitedStatesTotal = 0
-		self.visitedStates = {}
-
-		self.optimum = None
-
-		# random restart hillclimbing
-		for restarts in range(3):
-			self.visitedStatesTotal = 0
-			self.heur = temp
-
-			self.successor = copy.deepcopy(self.values)
-			self.optimum = copy.deepcopy(self.values)
-			sameValues = 0
-			value = 1000
-			k = 0
-
-			while sameValues < 3:
-				print k
-				k +=1
-				self.successor = self.generateSucc()
-				if self.heur == value:
-					sameValues +=1
-				else:
-					sameValues = 0
-					value = self.heur
-				if self.heur < value:
-					self.optimum = self.successor
-
-			self.visitedStates[restarts] = self.visitedStatesTotal
-
-		self.values = self.optimum
-
-		print self.visitedStates
-		p=0
-		for q in self.visitedStates:
-			p += self.visitedStates[q]
-		print p
-		print ""
-
 	def fill(self, file = None):
 		""" Fills the sudoku with a pre-chosen list (can be read from file) and fills
 		 in the rest with "random" numbers (1-9) """

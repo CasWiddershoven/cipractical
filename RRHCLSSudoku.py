@@ -10,6 +10,7 @@ class RRHCLSSudoku(LSSudoku):
 		self.generateSucc()
 
 	def generateSucc(self):
+		""" Generates and selects the most suited successor state for the sudoku """
 		temp = self.calcHeuristicTmp()
 
 		self.visitedStatesTotal = 0
