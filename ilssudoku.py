@@ -2,9 +2,9 @@ from lssudoku import LSSudoku
 from random import randrange
 import copy, time, random
 
-class RRHCLSSudoku(LSSudoku):
+class ILSSudoku(LSSudoku):
 	def __init__(self, N, *args, **kwargs):
-		super(RRHCLSSudoku, self).__init__(N, *args, **kwargs)
+		super(ILSSudoku, self).__init__(N, *args, **kwargs)
 		self.fill()
 
 		self.values = self.generateSuccessor(self.values)
@@ -21,17 +21,16 @@ class RRHCLSSudoku(LSSudoku):
 		optimum = dictio.copy()
 		succ = dictio.copy()
 
-		sval = 4
+		svalue = 4
 
-		k = 0
-		sameValues = 0
-
-		for restarts in range(10):
+		for restarts in range(3):
 			succ = dictio.copy()
-			loopBest = 1000;
+			loopBest = 1000
+			preClimbBest = 1000
 
 			k = 0
 			sameValues = 0
+			randomWalked = False
 
 			while sameValues < 3:
 				print ""
@@ -55,6 +54,15 @@ class RRHCLSSudoku(LSSudoku):
 
 				if heur == loopBest:
 					sameValues += 1
+					if sameValues == 3 and not randomWalked:
+						preClimbBest = loopBest
+						randomWalked = True
+						sameValues = 0
+
+						for i in range(svalue):
+							succ = self.randomWalk(succ)
+							loopBest = self.calcHeuristicFunc(succ)
+
 
 			# STATISTICS
 			self.visitedStates[restarts] = self.visitedStatesTotal
@@ -67,6 +75,7 @@ class RRHCLSSudoku(LSSudoku):
 		for q in self.visitedStates:
 			p += self.visitedStates[q]
 		print p
+		print bestHeur
 		print ""
 
 		return optimum
@@ -162,6 +171,26 @@ class RRHCLSSudoku(LSSudoku):
 		print bestHeur
 		return bestSucc
 
+	def randomWalk(self, dictio):
+		randomSq = randrange(self.N**2)
+
+		randomSpot = randrange(self.N**2)
+		randomSpot2 = randrange(self.N**2)
+
+		walkSquares = dictio.copy()
+
+		square = self.unitlist[2*self.N**2 + randomSq]
+		spot1 = square[randomSpot]
+		spot2 = square[randomSpot2]
+
+		walkSquares = self.swapSquare(walkSquares, spot1, spot2)
+
+		# STATISTICS
+		self.visitedStatesTotal += 1
+
+		return walkSquares
+
+
 	def swapSquare(self, dictio, sq1, sq2):
 		""" Swaps the values of 2 squares in a given dictionary """
 		val1 = dictio[sq1]
@@ -172,143 +201,8 @@ class RRHCLSSudoku(LSSudoku):
 		return dictio
 
 
-
-	def generateSucc(self):
-		""" Generates and selects the most suited successor state for the sudoku """
-		temp = self.calcHeuristicTmp()
-
-		self.visitedStatesTotal = 0
-		self.visitedStates = {}
-
-		self.optimum = None
-
-		# random restart hillclimbing
-		for restarts in range(1):
-			self.visitedStatesTotal = 0
-			self.heur = temp
-
-			self.successor = self.values.copy()
-			self.optimum = self.values.copy()
-			sameValues = 0
-			value = 1000
-			k = 0
-
-			while sameValues < 3:
-				print k
-				k +=1
-				self.successor = self.generateSuccHillClimb()
-
-				if self.heur < value:
-					self.optimum = self.successor.copy()
-
-				if self.heur == value:
-					sameValues +=1
-				else:
-					sameValues = 0
-					value = self.heur
-
-
-			self.visitedStates[restarts] = self.visitedStatesTotal
-
-		self.values = self.optimum.copy()
-
-		# output the amount of states visited
-		print self.visitedStates
-		p=0
-		for q in self.visitedStates:
-			p += self.visitedStates[q]
-		print p
-		print self.heur
-		print ""
-
-	def generateSuccHillClimb(self):
-		""" Generates and checks all possible successor states and returns the best.
-		The order in which it will check is completely random
-		"""
-		bestSuccessor = self.successor.copy()
-
-		# Bekijk de heurstic values en sla de beste op
-		bestHeur = self.heur #copy.deepcopy(self.heur)
-
-		print bestHeur
-		if bestHeur == 0:
-			return bestSuccessor
-
-		# nieuwe methode
-
-		# en nu met random:
-		unvisitedSquares = [0] * (self.N**2)
-		sqPos = 1
-
-		for sqPos in range(self.N**2):
-			unvisitedSquares[sqPos] = copy.deepcopy(self.unitlist[2* self.N**2 + sqPos])
-
-		while sqPos:
-			sqPos = randrange(len(unvisitedSquares))
-
-		#for sqPos in range(2*self.N**2,len(self.unitlist)):
-
-			# elke square (0-8) gaat kijken of ie kan switchen ergens mee
-			# for i in range(self.N**2):
-			i = self.N**2
-			# en nu random:
-			while i:
-				i-=1
-				#sq1 = copy.deepcopy(self.unitlist[sqPos][i])
-				sq1 = copy.deepcopy(unvisitedSquares[sqPos][i])
-
-				# de originele posities moeten behouden blijven
-				if sq1 in self.prefill:
-					continue
-
-				val1 = self.getValue(0,0,sq1)
-
-				j = i
-				while j < self.N**2 -1 :
-					values = self.successor.copy()
-					j += 1
-
-					sq2 = unvisitedSquares[sqPos][j]
-
-					# de originele posities moeten behouden blijven
-					if sq2 in self.prefill:
-						continue
-
-					# For each visited state
-					self.visitedStatesTotal += 1
-
-					val2 = self.getValue(0,0,sq2)
-
-					if val1 == val2:
-						continue
-					else:
-						values[sq1] = val2
-						values[sq2] = val1
-
-						# Getting the heuristic
-						currentHeur = self.calcHeuristicFunc(values)
-						#print bestHeur
-						#print currentHeur
-
-						if currentHeur == 0:
-							return values
-
-						# Checking if it is the best heuristic value
-						if  currentHeur < bestHeur:
-							# Probeer deze eens zonder deepcopy!
-							bestSuccessor = values.copy()#copy.deepcopy(values)
-							bestHeur = copy.deepcopy(currentHeur)
-
-			del unvisitedSquares[sqPos]
-		# einde while loop
-
-		if bestHeur < self.heur:
-			self.heur = copy.deepcopy(bestHeur)
-
-		return bestSuccessor
-
 if __name__ == "__main__":
-	sud = RRHCLSSudoku(3)
+	sud = ILSSudoku(3)
 	print(sud)
 
 	def switch(self, x1=None, x2=None, y1=None, y2=None, sq1=None, sq2=None):

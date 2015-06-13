@@ -11,12 +11,12 @@ class LSSudoku(Sudoku):
 		""" Fills the sudoku with a pre-chosen list (can be read from file) and fills
 		 in the rest with "random" numbers (1-9) """
 		if file == None:
-			self.prefill = {513:4,514:2, 520: 1}
+			self.prefill = {}
 		else:
 			f = open('sudoku.txt')
 			self.prefill = f.read()
 			f.close()
-		for u in range(18,27):
+		for u in range(2* self.N**2,3* self.N**2):
 		    for val in range(self.N**2):
 		            self.setValue(val+1,0,0,self.unitlist[u][val])
 
