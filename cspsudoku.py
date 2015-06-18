@@ -43,29 +43,30 @@ class CSPSudoku(Sudoku):
 	def __strval__(self, val):
 		return " ".join(str(d + 1) for d in range(self.N**2) if 1 << d & val)
 		
-def solve(su):
-	"Using depth-first search and propagation, try all possible values."
-	def some(seq):
-		"Return some element of seq that is true."
-		for e in seq:
-			if e: return e
-		return False
+	@staticmethod
+	def solve(su):
+		"Using depth-first search and propagation, try all possible values."
+		def some(seq):
+			"Return some element of seq that is true."
+			for e in seq:
+				if e: return e
+			return False
+				
+		def countBits(num):
+			c = 0
+			while num: # Until there are no 1 bits left
+				num &= (num - 1) # Remove the least significant 1 bit
+				c += 1 # And increment the counter
+			return c
 			
-	def countBits(num):
-		c = 0
-		while num: # Until there are no 1 bits left
-			num &= (num - 1) # Remove the least significant 1 bit
-			c += 1 # And increment the counter
-		return c
-		
-	if su is False:
-		return False ## Failed earlier
-	if all((su.getValue(sq=sq) & (su.getValue(sq=sq) - 1)) == 0 for sq in su.squares): # If for all squares there is only one option left. See r49, in Sudoku.eliminate.
-		return su ## Solved!
-	## Chose the unfilled square s with the fewest possibilities
-	_,sq = min((countBits(su.getValue(sq=sq)), sq) for sq in su.squares if countBits(su.getValue(sq=sq)) > 1)
-	return some(solve(su.copy().setValue(1<<d, sq=sq))
-				for d in range(su.N**2) if (1<<d) <= su.getValue(sq=sq) and (1<<d)&su.getValue(sq=sq))
+		if su is False:
+			return False ## Failed earlier
+		if all((su.getValue(sq=sq) & (su.getValue(sq=sq) - 1)) == 0 for sq in su.squares): # If for all squares there is only one option left. See r49, in Sudoku.eliminate.
+			return su ## Solved!
+		## Chose the unfilled square s with the fewest possibilities
+		_,sq = min((countBits(su.getValue(sq=sq)), sq) for sq in su.squares if countBits(su.getValue(sq=sq)) > 1)
+		return some(CSPSudoku.solve(su.copy().setValue(1<<d, sq=sq))
+					for d in range(su.N**2) if (1<<d) <= su.getValue(sq=sq) and (1<<d)&su.getValue(sq=sq))
    
 def grid_values(grid, squares, digits, N=3):
     "Convert grid into a dict of {square: char} with '0' or '.' for empties."
@@ -92,6 +93,6 @@ if __name__ == "__main__":
 	sud = CSPSudoku(2)
 	print(sud)
 	print("\n\n")
-	print(solve(parse_3_grid(grid1)))
-	print(solve(parse_3_grid(grid2)))
-	print(solve(parse_3_grid(hard1)))
+	print(CSPSudoku.solve(parse_3_grid(grid1)))
+	print(CSPSudoku.solve(parse_3_grid(grid2)))
+	#print(Sudoku.solve(parse_3_grid(hard1)))

@@ -4,7 +4,7 @@ class LSSudoku(Sudoku):
 	def __init__(self, N, *args, **kwargs):
 		super(LSSudoku, self).__init__(N, *args, **kwargs)
 
-        self.fill()
+		self.fill()
 
 	def fill(self):
 		prefill = {513:4,514:2}

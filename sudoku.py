@@ -40,7 +40,7 @@ class Sudoku(object):
 		return su
 
 	@staticmethod
-	def from_vals(vals, N):
+	def fromVals(vals, N):
 		su = Sudoku(N)
 		for key in vals:
 			su.values[key] = vals[key]
