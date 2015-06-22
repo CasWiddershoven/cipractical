@@ -8,14 +8,22 @@ def test(su, verbose=False):
     assert all(len(su.peers[s]) == 3*su.N**2-2*su.N-1 for s in su.squares) # 3*N**2-2*N-1
     
 class Sudoku(object):
-	def __init__(self, N, *args, **kwargs):
-
+	def __init__(self, N, values=None, digits=None, squares=None, unitlist=None, units=None, peers=None, *args, **kwargs):
 		self.N = N
-		self.digits = range(1, self.N**2+1)
-		self.squares = [(1 << (self.N**2+c)) + (1<<r)
-								for c in range(self.N**2)
-								for r in range(self.N**2)] # Now the row number of square i is log(self.squares[i] >> N**2)/log(2) and the column number is log(self.squares[i] & (1 << N**2 -1))/log(2)
-		self.unitlist = ([[(1<<(self.N**2+c)) + (1<<r)
+		if digits:
+			self.digits = digits
+		else:
+			self.digits = range(1, self.N**2+1)
+		if squares:
+			self.squares = squares
+		else:
+			self.squares = [(1 << (self.N**2+c)) + (1<<r)
+									for c in range(self.N**2)
+									for r in range(self.N**2)] # Now the row number of square i is log(self.squares[i] >> N**2)/log(2) and the column number is log(self.squares[i] & (1 << N**2 -1))/log(2)
+		if unitlist:
+			self.unitlist = unitlist
+		else:
+			self.unitlist = ([[(1<<(self.N**2+c)) + (1<<r)
 							for r in range(self.N**2)]
 									for c in range(self.N**2)] +
 					[[(1<<(self.N**2+c)) + (1<<r)
@@ -26,25 +34,35 @@ class Sudoku(object):
 							for c2 in range(self.N)]
 									for r1 in range(self.N)
 									for c1 in range(self.N)])
-		self.units = dict((s, [u for u in self.unitlist if s in u]) for s in self.squares)
-		self.peers = dict((s, set(sum(self.units[s], [])) - set([s])) for s in self.squares)
+		if units:
+			self.units = units
+		else:
+			self.units = dict((s, [u for u in self.unitlist if s in u]) for s in self.squares)
+		if peers:
+			self.peers = peers
+		else:
+			self.peers = dict((s, set(sum(self.units[s], [])) - set([s])) for s in self.squares)
 
-		self.values = dict((s, 0) for s in self.squares)
+		if values:
+			self.values = values
+		else:
+			self.values = dict((s, 0) for s in self.squares)
 
-		test(self)
-
-	def copy(self):
-		su = self.__class__(self.N) # Supports subclassing
-		su.values = self.values.copy()
-		test(su)
+	def copy(self, *args, **kwargs):
+		su = self.__class__(self.N,  # self.__class__ so that it supports subclassing
+							values=self.values,
+							digits=self.digits,
+							squares=self.squares, 
+							unitlist=self.unitlist, 
+							units=self.units, 
+							peers=self.peers, *args, **kwargs) # Reference the squares, unitlist, units and peers for performance improvement
 		return su
 
-	@staticmethod
-	def fromVals(vals, N):
-		su = Sudoku(N)
+	@classmethod
+	def fromVals(cls, vals, N):
+		su = cls(N)
 		for key in vals:
 			su.values[key] = vals[key]
-		test(su)
 		return su
 
 	def __str__(self):
@@ -78,9 +96,7 @@ class Sudoku(object):
 	def sq2xy(self, sq):
 		"""Converts a square coordinate to x, y coordinates, column and row
 		coordinates"""
-		x = sq & (sq - 1) # The first 1-bit in the bitstring sq
-		y = sq - x # The other 1-bit in the bitstring sq
-		x = x >> (self.N**2) # Shift x so that the coordinate of the 1 bit is the x coordinate
+		x, y = divmod(sq, 1<<(self.N**2))
 		xdec = 0
 		ydec = 0
 		while x > 1 or y > 1:
