@@ -8,7 +8,7 @@ class LSSudoku(Sudoku):
 	def __init__(self, N, values=None, prefill=None, possibleSwaps=None, *args, **kwargs):
 		super(LSSudoku, self).__init__(N, values=values, *args, **kwargs)
 		self.fill(values=values, prefill=prefill, possibleSwaps=possibleSwaps)
-		
+
 	def fill(self, file = None, values=None, prefill = None, possibleSwaps = None):
 		""" Fills the sudoku with a pre-chosen list (can be read from file) and fills
 		 in the rest with "random" numbers (1-9) """
@@ -20,7 +20,7 @@ class LSSudoku(Sudoku):
 			f = open('sudoku.txt')
 			self.prefill = f.read()
 			f.close()
-			
+
 		if possibleSwaps != None:
 			self.possibleSwaps = possibleSwaps
 		else:
@@ -37,12 +37,12 @@ class LSSudoku(Sudoku):
 					row2 = [i for i in self.units[square2][1] if i != square2]
 				else:
 					row1 = row2 = False
-				
+
 				return col1, row1, col2, row2
 			self.possibleSwaps = [(self.unitlist[u][square1], self.unitlist[u][square2],
 									getRowsAndColumns(self.unitlist[u][square1], self.unitlist[u][square2]))
-										for square1 in range(self.N**2) 
-										for square2 in range(square1, self.N**2) 
+										for square1 in range(self.N**2)
+										for square2 in range(square1, self.N**2)
 										for u in range(2*self.N**2, 3*self.N**2)
 											if self.unitlist[u][square1] not in self.prefill and self.unitlist[u][square2] not in self.prefill]
 		if values != None:
@@ -62,13 +62,13 @@ class LSSudoku(Sudoku):
 				#self.setValue(self.prefill[u],sq=u)
 				#self.setValue(v,sq=s)
 				self.swap(sq1=u, sq2=s)
-			
+
 	@classmethod
 	def fromVals(cls, N, vals):
 		sud = cls(N)
 		sud.fill(prefill=vals)
 		return sud
-		
+
 	def copy(self):
 		return super(LSSudoku, self).copy(prefill=self.prefill, possibleSwaps=self.possibleSwaps) # Pass along the local search specific data
 
@@ -95,7 +95,7 @@ class LSSudoku(Sudoku):
 				nums[self.getValue(sq=sq) - 1] = 0
 			_sum += sum(nums) # Nums now is 1 on all the places where there was no square containing the value and 0 on all others
 		return _sum
-		
+
 	def generateNeighbours(self):
 		""" An iterator that generates all neighbours """
 		heur = self.heuristicValue()
@@ -132,7 +132,7 @@ class LSSudoku(Sudoku):
 	def getBestNeighbour(self):
 		""" Generates and checks all possible successor states and returns the best.
 		The order in which it will check is the blocks left to right and top to bottom
-		and within the block left to right and top to bottom. 
+		and within the block left to right and top to bottom.
 		 """
 		bestSuccessor = self
 		bestHeur = 20000 # Higher than the highest possible in a 9^2x9^2 puzzle
