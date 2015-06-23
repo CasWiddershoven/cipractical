@@ -1,5 +1,5 @@
 from sudoku import Sudoku
-from random import randrange
+from random import randrange, randint
 import copy, time, random
 
 class LSSudoku(Sudoku):
@@ -20,25 +20,29 @@ class LSSudoku(Sudoku):
 		    for val in range(self.N**2):
 		            self.setValue(val+1,0,0,self.unitlist[u][val])
 
+		# in elke N^2 square in de sudoku
+#		for u in range(2*self.N*2, 3*self.N**2):
+#			posl = range(self.N**2)		# Posibilities list
+
+#			val = randrange(len(posl))
+#			index = 0
+#			while val:
+#				self.setValue(val+1,0,0,self.unitlist[u][index])
+#				index+=1
+
+				# DEBUG
+#				print posl
+#				print val
+
+#				del posl[val]
+#				val = randrange(len(posl))
+
+
 		for u in self.prefill:
 		    v = self.getValue(0,0,u)
 		    s = self.units[u][2][self.prefill[u]-1]
 		    self.setValue(self.prefill[u],0,0,u)
 		    self.setValue(v,0,0,s)
-
-	def calcHeuristicTmp(self):
-		""" Calculate the heurstic value for the initial sudoku """
-		_sum =0;
-
-		for u in self.unitlist:
-		    for p in self.units[u[0]]:
-		        nums = [0] * self.N**2
-		        for i in p:
-		            nums[self.values[i]-1] += 1
-		        for j in nums:
-		            if(j==0):
-		                _sum += 1
-		return _sum
 
 	def calcHeuristicFunc(self, dictio):
 		""" Calculates the heursitc value of an inputted sudoku """
@@ -54,74 +58,10 @@ class LSSudoku(Sudoku):
 		                _sum += 1
 		return _sum
 
-	def generateSucc(self):
+	def generateSuccessor(self, dictio):
 		""" Generates and checks all possible successor states and returns the best.
-		The order in which it will check is completely random
-		 """
-		bestSuccessor = copy.deepcopy(self.successor)
-
-		# Bekijk de heurstic values en sla de beste op
-		bestHeur = copy.deepcopy(self.heur)
-
-		print bestHeur
-		if bestHeur == 0:
-			return bestSuccessor
-		usableSq = copy.deepcopy(self.squares)
-
-		for i in range(len(self.squares)):
-			sq = self.squares[i]
-
-			# Deze moet gecopied worden
-			restSq = copy.deepcopy(self.squares)
-
-			# de originele posities moeten behouden blijven
-			if sq in self.prefill:
-				continue
-
-			del restSq[i]
-
-			val1 = self.successor[sq]
-
-			# nu met random keuzes
-			j = 1
-
-			while j: #for j in range(len(restSq)):
-				j = randrange(0,len(restSq))
-				sq2 = restSq[j]
-
-				# de originele posities moeten behouden blijven
-				if sq2 in self.prefill:
-					del restSq[j]
-					continue
-
-				values = copy.deepcopy(self.successor)
-				val2 = values[sq2]
-
-				if val2 == val1:
-					del restSq[j]
-					continue
-				else:
-					values[sq] = val2
-					values[sq2] = val1
-					currentHeur = self.calcHeuristicFunc(values)
-					if currentHeur == 0:
-						return copy.deepcopy(values)
-
-					if  currentHeur < bestHeur:
-						# Probeer deze eens zonder deepcopy!
-						bestSuccessor = copy.deepcopy(values)
-						bestHeur = currentHeur
-
-				# random index keuze
-				self.visitedStatesTotal += 1
-				del restSq[j]
-
-
-		if bestHeur < self.heur:
-			self.heur = bestHeur
-
-		return bestSuccessor
-
+		The order in which it will check is completely random """
+		return dictio
 
 if __name__ == "__main__":
 	sud = LSSudoku(3)

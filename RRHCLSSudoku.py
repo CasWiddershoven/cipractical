@@ -10,7 +10,8 @@ class RRHCLSSudoku(LSSudoku):
 		self.values = self.generateSuccessor(self.values)
 
 	def generateSuccessor(self, dictio):
-		""" Generates a random successor for the given state """
+		""" Generates and checks all possible successor states and returns the best.
+		The order in which it will check is completely random """
 
 		# statistics
 		self.visitedStatesTotal = 0

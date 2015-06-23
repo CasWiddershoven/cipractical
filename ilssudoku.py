@@ -23,7 +23,7 @@ class ILSSudoku(LSSudoku):
 
 		svalue = 4
 
-		for restarts in range(3):
+		for restarts in range(10):
 			succ = dictio.copy()
 			loopBest = 1000
 			preClimbBest = 1000
@@ -190,7 +190,6 @@ class ILSSudoku(LSSudoku):
 
 		return walkSquares
 
-
 	def swapSquare(self, dictio, sq1, sq2):
 		""" Swaps the values of 2 squares in a given dictionary """
 		val1 = dictio[sq1]
@@ -204,13 +203,3 @@ class ILSSudoku(LSSudoku):
 if __name__ == "__main__":
 	sud = ILSSudoku(3)
 	print(sud)
-
-	def switch(self, x1=None, x2=None, y1=None, y2=None, sq1=None, sq2=None):
-		if sq1 == None:
-			sq1 = self.xy2sq(x1, y1)
-		if sq2 == None:
-			sq2 = self.xy2sq(x2, y2)
-		val1 = self.getValue(sq=sq1)
-		val2 = self.getValue(sq=sq2)
-		self.setValue(val2, sq=sq1)
-		self.setValue(val1, sq=sq2)
