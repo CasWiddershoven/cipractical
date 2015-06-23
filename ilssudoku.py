@@ -49,7 +49,7 @@ class ILSSudoku(LSSudoku):
 		""" Hillclimbs until it finds a (local) maximum """
 		curr = self.copy()
 		currHeur = 20000 # Higher than the highest possible in a 9^2x9^2 puzzle
-		
+
 		localMaximum = False # do ... while emulation
 		timeOnPlateau = plateauSize
 		while not localMaximum:
@@ -69,7 +69,7 @@ class ILSSudoku(LSSudoku):
 
 
 	def randomWalk(self, amount=4):
-		""" Does an "amount" amount of random steps """ 
+		""" Does an "amount" amount of random steps """
 		curr = self.copy()
 		for sq1, sq2, _ in sample(curr.possibleSwaps, amount):
 			curr.swap(sq1=sq1, sq2=sq2) # Do a random step
@@ -93,18 +93,17 @@ if __name__ == "__main__":
 	grid1  = '003020600900305001001806400008102900700000008006708200002609500800203009005010300'
 	grid2  = '4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......'
 	hard1  = '.....6....59.....82....8....45........3........6..3.54...325..6..................'
-	
-	
+
+
 	sud = ILSSudoku(3)
 	print(sud)
-	
+
 	def testGenerateNeighbours(su, n):
 		for _ in range(n):
 			for g in su.generateNeighbours():
 				pass
-				
-	
-	
+
+
 	sud = parse_3_grid(grid2)
 	print(sud)
 	#sud.solve(restarts=1000, randomWalk=9)
