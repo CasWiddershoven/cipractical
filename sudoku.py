@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from copy import copy
 
 def test(su, verbose=False):
     "A set of tests that must pass."
@@ -50,7 +51,7 @@ class Sudoku(object):
 
 	def copy(self, *args, **kwargs):
 		su = self.__class__(self.N,  # self.__class__ so that it supports subclassing
-							values=self.values,
+							values=copy(self.values),
 							digits=self.digits,
 							squares=self.squares, 
 							unitlist=self.unitlist, 

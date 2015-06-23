@@ -7,18 +7,19 @@ class RRHCLSSudoku(LSSudoku):
 		super(RRHCLSSudoku, self).__init__(N, *args, **kwargs)
 		
 	def solve(self, restarts=1000):
-		curr = self.copy()
+		bestHeur, curr = self.copy().hillClimb()
 		optimum = curr
-		bestHeur = 20000 # Higher than the highest possible in a 9^2x9^2 puzzle
 		for r in range(restarts):
+			curr = curr.randomRestart()
 			currHeur, curr = curr.hillClimb()
 			if currHeur < bestHeur:
 				optimum = curr
+				bestHeur = currHeur
 				if bestHeur == 0:
 					print("Found a solution in {} times!".format(r))
 					return optimum
-			curr = curr.randomRestart()
-		print("No solution found in {} times".format(restarts))
+		print("No solution found in {} times.".format(restarts))
+		print("Best heuristic value: {}".format(bestHeur))
 		return optimum
 		
 	def randomRestart(self):
@@ -77,7 +78,6 @@ if __name__ == "__main__":
 	
 	sud = RRHCLSSudoku(3)
 	print(sud)
-	
 	sud = parse_3_grid(grid2)
 	print(sud)
-	cProfile.run('print(sud.solve())')
+	cProfile.run('print(sud.solve(restarts=100))')
