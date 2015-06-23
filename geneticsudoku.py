@@ -25,12 +25,6 @@ class GeneticSudoku(object):
 			
 			self.population.add(temptempsud)
 
-		#print self.crossOver(self.optima.pop(),self.optima.pop())
-
-		self.solve()
-
-
-
 	def solve(self, generations=1000, childAmount=0.1, acceptanceChance=0.5):
 		
 		for i in range(generations):
@@ -42,9 +36,15 @@ class GeneticSudoku(object):
 			newHeurs = copy(self.heurvals)
 			while parentTuples:
 				p1, p2 = parentTuples.pop()
-				childHeur, child = self.crossOver(p1, p2)
-				if childHeur == 0:
-					return child
+				child = None
+				while child == None:
+					childHeur, child = self.crossOver(p1, p2)
+					if childHeur == 0:
+						return child
+					for sud in self.population:
+						if sud.equals(child):
+							child = None
+							break
 				newHeurs.append(childHeur)
 				child.ity = len(newHeurs) - 1
 				children.add(child)
@@ -121,6 +121,6 @@ if __name__ == "__main__":
 
 	#cProfile.run('sud.solve(restarts=10000, randomWalk=20)')
 	sud = parse_3_grid(grid2)
-	cProfile.run('a = sud.solve(generations=1000)')
+	cProfile.run('a = sud.solve(generations=20)')
 	print(a)
 	print(a.heuristicValue())

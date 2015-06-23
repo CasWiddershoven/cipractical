@@ -76,6 +76,9 @@ class Sudoku(object):
 			if (r+1) % self.N == 0 and r < self.N**2 - 1: res += line + "\n"
 		res += "\n"
 		return res
+		
+	def equals(self, other):
+		return self.values == other.values
 
 	def setValue(self, d, x=None, y=None, sq=None):
 		if sq == None:
