@@ -10,15 +10,24 @@ class GeneticSudoku(object):
 		self.prefill = prefill
 		self.N = N
 
-
 		self.optima = set()
+
 		tempsud = Sud(N,prefill = prefill)
 		for i in range(popSize):
 			temptempsud =tempsud.copy()
 			temptempsud.fill(prefill = prefill, possibleSwaps = tempsud.possibleSwaps)
 			self.optima.add(temptempsud)
-		
+
 		print self.crossOver(self.optima.pop(),self.optima.pop())
+
+		self.solve()
+
+
+
+	def solve(self, generations=1000):
+
+		for i in range(generations):
+			print self.optima.pop().heuristicValue()
 
 	def crossOver(self, sud1, sud2):
 		""" """
