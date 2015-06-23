@@ -2,7 +2,8 @@
 
 from sudoku import Sudoku
 from random import randrange, shuffle
-import copy, time, random
+from copy import copy, deepcopy
+import time, random
 
 class LSSudoku(Sudoku):
 	def __init__(self, N, values=None, prefill=None, possibleSwaps=None, *args, **kwargs):

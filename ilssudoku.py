@@ -108,5 +108,5 @@ if __name__ == "__main__":
 	sud = parse_3_grid(grid2)
 	print(sud)
 	#sud.solve(restarts=1000, randomWalk=9)
-	cProfile.run('sud.solve(restarts=20000, randomWalk=20)')
+	cProfile.run('sud.solve(restarts=2000, randomWalk=20)')
 	#cProfile.run('testGenerateNeighbours(sud, 10000)')

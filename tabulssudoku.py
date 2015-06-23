@@ -129,5 +129,5 @@ if __name__ == "__main__":
 	sud = parse_3_grid(grid2)
 	print(sud)
 	#sud.solve(restarts=1000, randomWalk=9)
-	cProfile.run('print(sud.solve(stepsAmnt=10000))')
+	cProfile.run('print(sud.solve(stepsAmnt=100000))')
 	#cProfile.run('testGenerateNeighbours(sud, 10000)')
