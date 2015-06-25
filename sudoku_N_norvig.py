@@ -12,11 +12,12 @@
 ##   values is a dict of possible values, e.g. {'A1':'12349', 'A2':'8', ...}
 
 from math import log
+import cProfile
 
 def cross(A, B):
     "Cross product of elements in A and elements in B."
     return [a+b for a in A for b in B]
-    
+
 class Sudoku:
 	def __init__(self, N):
 		self.N = N
@@ -27,11 +28,11 @@ class Sudoku:
 					[[(1<<(N**2+c1*N + c2)) + (1<<(r1*N+r2)) for r2 in range(N) for c2 in range(N)] for r1 in range(N) for c1 in range(N)])
 		self.units = dict((s, [u for u in self.unitlist if s in u]) for s in self.squares)
 		self.peers = dict((s, set(sum(self.units[s], [])) - set([s])) for s in self.squares)
-		
+
 		self.values = dict((s, self.digits) for s in self.squares)
-		
+
 		test(self)
-		
+
 	def assign(self, s, d):
 		other_values = self.values[s] & (self.digits - d)
 		if all(self.eliminate(s, (1<<d2)) for d2 in range(self.N**2) if (1<<d2) <= other_values and (1<<d2)&other_values):
@@ -62,13 +63,13 @@ class Sudoku:
 				if not self.assign(dplaces[0], d):
 					return False
 		return self
-		
+
 	def copy(self):
 		su = Sudoku(self.N)
 		su.values = self.values.copy()
 		test(su)
 		return su
-		
+
 	@staticmethod
 	def from_vals(vals, N):
 		su = Sudoku(N)
@@ -76,7 +77,7 @@ class Sudoku:
 			su.values[key] = vals[key]
 		test(su)
 		return su
-		
+
 	def __str__(self):
 		res = ""
 		width = 3 + max((1 + len(str(self.N**2)))*countBits(self.values[s]) for s in self.squares)
@@ -108,20 +109,53 @@ def parse_grid(grid):
         if d in digits and not assign(values, s, d):
             return False ## (Fail if we can't assign d to square s.)
     return values
-    
+
 def parse_3_grid(grid):
 	"""Convert grid to a Sudoku(3), or return False if a contradiction
 	is detected."""
 	su = Sudoku(3)
 	values = dict((s, su.digits) for s in su.squares)
-	for s, d in grid_values(grid, su.squares, su.digits).items():
+	for s, d in grid_values3x3(grid, su.squares, su.digits).items():
 		if d != su.digits and not su.assign(s, d):
 			return False
 	return su
 
+def parse_4_grid(grid):
+    su = Sudoku(4)
+    values = dict((s, su.digits) for s in su.squares)
+    for s, d in grid_values(grid, su.squares, su.digits, N=4).items():
+        if d != su.digits and not su.assign(s, d):
+            return False
+    return su
+
+def parse_5_grid(grid):
+    su = Sudoku(5)
+    print 5**4
+    print len(grid)
+    values = dict((s, su.digits) for s in su.squares)
+    for s, d in grid_values(grid, su.squares, su.digits, N=5).items():
+        if d != su.digits and not su.assign(s, d):
+            return False
+    return su
+
+def grid_values3x3(grid, squares, digits, N=3):
+    "Convert grid into a dict of {square: char} with '0' or '.' for empties."
+    chars = [1<<(int(c,17)-1) if c not in '0.' else digits for c in grid if c in "0.123456789" or c in '0.']
+    assert len(chars) == N**4
+    return dict(zip(squares, chars))
+
+
+def grid_values4x4(grid, squares, digits, N=3):
+    "Convert grid into a dict of {square: char} with '0' or '.' for empties."
+    chars = [1<<(int(c,17)-1) if c not in '0.' else digits for c in grid if c in "0.123456789ABCDEFG" or c in '0.']
+    assert len(chars) == N**4
+    return dict(zip(squares, chars))
+
+
 def grid_values(grid, squares, digits, N=3):
     "Convert grid into a dict of {square: char} with '0' or '.' for empties."
-    chars = [1<<(int(c)-1) if c not in '0.' else digits for c in grid if c in "0.123456789" or c in '0.']
+    chars = [1<<(int(c,27)-1) if c not in '0.' else digits for c in grid if c in "0.123456789ABCDEFGHIJKLMNOPQ" or c in '0.']
+    print len(chars)
     assert len(chars) == N**4
     return dict(zip(squares, chars))
 
@@ -209,14 +243,14 @@ def shuffled(seq):
     seq = list(seq)
     random.shuffle(seq)
     return seq
-    
+
 def countBits(num):
 	c = 0
 	while num: # Until there are no 1 bits left
 		num &= (num - 1) # Remove the least significant 1 bit
 		c += 1 # And increment the counter
 	return c
-	
+
 def getBits(num):
 	c = []
 	from math import log
@@ -272,16 +306,22 @@ def random_puzzle(N=17):
 grid1  = '003020600900305001001806400008102900700000008006708200002609500800203009005010300'
 grid2  = '4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......'
 hard1  = '.....6....59.....82....8....45........3........6..3.54...325..6..................'
-    
+zestien = '.9.....E.6.0..B.........3.8...10....CA.B.9..3........561.AFB..D.7.9..3....61..FB.C.F74.DE.2....1......A....DE....E3..........4....4.8.....56...F.B..........1.5.61....C...4.8E......6...F..AD7..9.7....3........A....D7......1.5....A..C...4..E................G'
+zestien2= '...86.1GD.F7...5..F...E.6..5C.....4..8CAB.E.D..F..61.4...9......3.......8A42.....B5....3..7...9.GD.4A..7.6..F..B....5.8..G.FE.D..5.7...BE........A.9..64....7F.CEF.D9C.......A........FE32A8.......C.E.....95D.6...5..B8AE.19....EDA.1...3...B...9..7....D8....4'
+
 if __name__ == '__main__':
     #test()
     #solve_all(from_file("easy50.txt", '========'), "easy", None)
-    #solve_all(from_file("top95.txt"), "hard", None)
+    #solve_all(from_file("sudokus/hard95.txt"), "hard", None)
     #solve_all(from_file("hardest.txt"), "hardest", None)
     #solve_all([random_puzzle() for _ in range(99)], "random", 100.0)
-    print(solve(grid1))
-    solve(grid2)
 
+    #print(solve(grid1))
+
+    def testingdit():
+        for i in from_file("hard95.txt"):
+            solve(i)
+    cProfile.run('testingdit()')
 ## References used:
 ## http://www.scanraid.com/BasicStrategies.htm
 ## http://www.sudokudragon.com/sudokustrategy.htm
